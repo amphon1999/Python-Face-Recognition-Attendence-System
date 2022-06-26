@@ -12,6 +12,9 @@ from tkinter import messagebox
 from time import strftime
 from datetime import datetime
 import csv
+import pandas as pd
+import matplotlib.pyplot as plt
+
 from tkinter import filedialog
 
 #Global variable for importCsv Function 
@@ -25,9 +28,8 @@ class Attendance:
 
         #-----------Variables-------------------
         self.var_id=StringVar()
-        self.var_roll=StringVar()
+        self.var_type=StringVar()
         self.var_name=StringVar()
-        self.var_dep=StringVar()
         self.var_time=StringVar()
         self.var_date=StringVar()
         self.var_attend=StringVar()
@@ -71,25 +73,25 @@ class Attendance:
         # ==================================Text boxes and Combo Boxes====================
 
         #Student id
-        studentId_label = Label(left_frame,text="No:",font=("verdana",12,"bold"),fg="navyblue",bg="white")
-        studentId_label.grid(row=0,column=0,padx=5,pady=5,sticky=W)
+        id_label = Label(left_frame,text="No:",font=("verdana",12,"bold"),fg="navyblue",bg="white")
+        id_label.grid(row=0,column=0,padx=5,pady=5,sticky=W)
 
-        studentId_entry = ttk.Entry(left_frame,textvariable=self.var_id,width=15,font=("verdana",12,"bold"))
-        studentId_entry.grid(row=0,column=1,padx=5,pady=5,sticky=W)
+        id_entry = ttk.Entry(left_frame,textvariable=self.var_id,width=15,font=("verdana",12,"bold"))
+        id_entry.grid(row=0,column=1,padx=5,pady=5,sticky=W)
 
         #Student Roll
-        student_roll_label = Label(left_frame,text="Type:",font=("verdana",12,"bold"),fg="navyblue",bg="white")
-        student_roll_label.grid(row=0,column=2,padx=5,pady=5,sticky=W)
+        type_label = Label(left_frame,text="Type:",font=("verdana",12,"bold"),fg="navyblue",bg="white")
+        type_label.grid(row=0,column=2,padx=5,pady=5,sticky=W)
 
-        student_roll_entry = ttk.Entry(left_frame,textvariable=self.var_roll,width=15,font=("verdana",12,"bold"))
-        student_roll_entry.grid(row=0,column=3,padx=5,pady=5,sticky=W)
+        type_entry = ttk.Entry(left_frame,textvariable=self.var_type,width=15,font=("verdana",12,"bold"))
+        type_entry.grid(row=0,column=3,padx=5,pady=5,sticky=W)
 
         #Studnet Name
-        student_name_label = Label(left_frame,text="Name:",font=("verdana",12,"bold"),fg="navyblue",bg="white")
-        student_name_label.grid(row=1,column=0,padx=5,pady=5,sticky=W)
+        name_label = Label(left_frame,text="Name:",font=("verdana",12,"bold"),fg="navyblue",bg="white")
+        name_label.grid(row=1,column=0,padx=5,pady=5,sticky=W)
 
-        student_name_entry = ttk.Entry(left_frame,textvariable=self.var_name,width=15,font=("verdana",12,"bold"))
-        student_name_entry.grid(row=1,column=1,padx=5,pady=5,sticky=W)
+        name_entry = ttk.Entry(left_frame,textvariable=self.var_name,width=15,font=("verdana",12,"bold"))
+        name_entry.grid(row=1,column=1,padx=5,pady=5,sticky=W)
 
         #Department
         # dep_label = Label(left_frame,text="Department:",font=("verdana",12,"bold"),fg="navyblue",bg="white")
@@ -113,8 +115,8 @@ class Attendance:
         date_entry.grid(row=2,column=1,padx=5,pady=5,sticky=W)
 
         #Attendance
-        student_attend_label = Label(left_frame,text="Attend-status:",font=("verdana",12,"bold"),fg="navyblue",bg="white")
-        student_attend_label.grid(row=2,column=2,padx=5,pady=5,sticky=W)
+        attend_label = Label(left_frame,text="Attend-status:",font=("verdana",12,"bold"),fg="navyblue",bg="white")
+        attend_label.grid(row=2,column=2,padx=5,pady=5,sticky=W)
 
         attend_combo=ttk.Combobox(left_frame,textvariable=self.var_attend,width=13,font=("verdana",12,"bold"),state="readonly")
         attend_combo["values"]=("Status","Present","Absent")
@@ -137,9 +139,9 @@ class Attendance:
         scroll_x.config(command=self.attendanceReport_left.xview)
         scroll_y.config(command=self.attendanceReport_left.yview)
 
-        self.attendanceReport_left.heading("ID",text="Std-ID")
+        self.attendanceReport_left.heading("ID",text="ID")
         self.attendanceReport_left.heading("Type",text="Type")
-        self.attendanceReport_left.heading("Name",text="Std-Name")
+        self.attendanceReport_left.heading("Name",text="Name")
         self.attendanceReport_left.heading("Time",text="Time")
         self.attendanceReport_left.heading("Date",text="Date")
         self.attendanceReport_left.heading("Attend",text="Attend-status")
@@ -176,16 +178,16 @@ class Attendance:
         del_btn=Button(btn_frame,command=self.action,text="Update",width=12,font=("verdana",12,"bold"),fg="white",bg="navyblue")
         del_btn.grid(row=0,column=2,padx=6,pady=10,sticky=W)
 
-        #reset button
-        reset_btn=Button(btn_frame,command=self.reset_data,text="Reset",width=12,font=("verdana",12,"bold"),fg="white",bg="navyblue")
-        reset_btn.grid(row=0,column=3,padx=6,pady=10,sticky=W)
+        #rchart button
+        chart_btn=Button(btn_frame,command=self.Data_Chart,text="Chart",width=12,font=("verdana",12,"bold"),fg="white",bg="navyblue")
+        chart_btn.grid(row=0,column=3,padx=6,pady=10,sticky=W)
 
 
 
         # Right section=======================================================
 
         # Right Label Frame 
-        right_frame = LabelFrame(main_frame,bd=2,bg="white",relief=RIDGE,text="Student Details",font=("verdana",12,"bold"),fg="navyblue")
+        right_frame = LabelFrame(main_frame,bd=2,bg="white",relief=RIDGE,text="Details",font=("verdana",12,"bold"),fg="navyblue")
         right_frame.place(x=680,y=10,width=660,height=480)
 
 
@@ -207,9 +209,9 @@ class Attendance:
         scroll_x.config(command=self.attendanceReport.xview)
         scroll_y.config(command=self.attendanceReport.yview)
 
-        self.attendanceReport.heading("ID",text="Std-ID")
+        self.attendanceReport.heading("ID",text="ID")
         self.attendanceReport.heading("Type",text="Type")
-        self.attendanceReport.heading("Name",text="Std-Name")
+        self.attendanceReport.heading("Name",text="Name")
         self.attendanceReport.heading("Time",text="Time")
         self.attendanceReport.heading("Date",text="Date")
         self.attendanceReport.heading("Attend",text="Attend-status")
@@ -236,7 +238,7 @@ class Attendance:
         del_btn.grid(row=0,column=2,padx=6,pady=10,sticky=W)
     # ===============================update function for mysql database=================
     def update_data(self):
-        if self.var_id.get()=="" or self.var_roll.get=="" or self.var_name.get()=="" or self.var_time.get()=="" or self.var_date.get()=="" or self.var_attend.get()=="Status":
+        if self.var_id.get()=="" or self.var_type.get=="" or self.var_name.get()=="" or self.var_time.get()=="" or self.var_date.get()=="" or self.var_attend.get()=="Status":
             messagebox.showerror("Error","Please Fill All Fields are Required!",parent=self.root)
         else:
             try:
@@ -244,9 +246,9 @@ class Attendance:
                 if Update > 0:
                     conn = mysql.connector.connect(host='localhost',user='root', password='',database='face_recognition')
                     mycursor = conn.cursor()
-                    mycursor.execute("update attendance set std_id=%s,std_roll_no=%s,std_name=%s,std_time=%s,std_date=%s,std_attendance=%s where std_id=%s",( 
+                    mycursor.execute("update attendance set id=%s,std_type=%s,name=%s,time=%s,date=%s,attendance=%s where id=%s",( 
                     self.var_id.get(),
-                    self.var_roll.get(),
+                    self.var_type.get(),
                     self.var_name.get(),
                     self.var_time.get(),
                     self.var_date.get(),
@@ -302,13 +304,36 @@ class Attendance:
         conn.close()
 
     #============================Reset Data======================
-    def reset_data(self):
-        self.var_id.set("")
-        self.var_roll.set("")
-        self.var_name.set("")
-        self.var_time.set("")
-        self.var_date.set("")
-        self.var_attend.set("Status")
+    def Data_Chart(self):
+        
+
+        plt.style.use('bmh')
+        df = pd.read_csv('attendance.csv')
+
+        # All Brands
+        x = df['']
+        y = df['type']
+
+        # Specified Brands
+        # specified = df.loc[df['Company'] == 'Samsung']
+        # x = specified['Model']
+        # y = specified['Price']
+
+        # Bar chart
+        # plt.xlabel('Model', fontsize=18)
+        # plt.ylabel('Price($)', fontsize=16)
+        # plt.bar(x, y)
+
+        # Pie chart
+        plt.pie(y, labels=x, radius=1.2,autopct='%0.01f%%', shadow=True, explode=[.05,.2,.05,.2,.05,.2,.05])
+
+        # Line Graph
+        # plt.xlabel('Model', fontsize=18)
+        # plt.ylabel('Price($)', fontsize=16)
+        # plt.scatter(x, y)
+        # plt.plot(x, y)
+
+    plt.show()
 
     # =========================Fetch Data Import data ===============
 
@@ -333,19 +358,19 @@ class Attendance:
 
     #==================Experot CSV=============
     def exportCsv(self):
-        try:
-            if len(mydata)<1:
-                messagebox.showerror("Error","No Data Found!",parent=self.root)
-                return False
-            fln=filedialog.asksaveasfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(("CSV File","*.csv"),("All File","*.*")),parent=self.root)
-            with open(fln,mode="w",newline="") as myfile:
-                exp_write=csv.writer(myfile,delimiter=",")
-                for i in mydata:
-                    exp_write.writerow(i)
-                messagebox.showinfo("Successfuly","Export Data Successfully!")
-        except Exception as es:
-                messagebox.showerror("Error",f"Due to: {str(es)}",parent=self.root)    
-
+                csv = pd.read_csv('attendance.csv')
+                ExcelWriter = pd.ExcelWriter('AllData.xlsx')
+                csv.to_excel(
+                    ExcelWriter,
+                    index_label = 'ABC',
+                    index = False,
+                    float_format= '%.2f',
+                    freeze_panes= (3,1),
+                    sheet_name= 'my data from csv'
+                )
+                ExcelWriter.save()
+                messagebox.showinfo("Export","Successfully!",parent=self.root)
+               
     #=============Cursur Function for CSV========================
 
     def get_cursor_left(self,event=""):
@@ -354,7 +379,7 @@ class Attendance:
         data = content["values"]
 
         self.var_id.set(data[0]),
-        self.var_roll.set(data[1]),
+        self.var_type.set(data[1]),
         self.var_name.set(data[2]),
         self.var_time.set(data[3]),
         self.var_date.set(data[4]),
@@ -368,7 +393,7 @@ class Attendance:
         data = content["values"]
 
         self.var_id.set(data[0]),
-        self.var_roll.set(data[1]),
+        self.var_type.set(data[1]),
         self.var_name.set(data[2]),
         self.var_time.set(data[3]),
         self.var_date.set(data[4]),
@@ -377,7 +402,7 @@ class Attendance:
 
     # export upadte
     def action(self):
-        if self.var_id.get()=="" or self.var_roll.get=="" or self.var_name.get()=="" or self.var_time.get()=="" or self.var_date.get()=="" or self.var_attend.get()=="Status":
+        if self.var_id.get()=="" or self.var_type.get=="" or self.var_name.get()=="" or self.var_time.get()=="" or self.var_date.get()=="" or self.var_attend.get()=="Status":
             messagebox.showerror("Error","Please Fill All Fields are Required!",parent=self.root)
         else:
             try:
@@ -385,7 +410,7 @@ class Attendance:
                 mycursor = conn.cursor()
                 mycursor.execute("insert into attendance values(%s,%s,%s,%s,%s,%s)",(
                 self.var_id.get(),
-                self.var_roll.get(),
+                self.var_type.get(),
                 self.var_name.get(),
                 self.var_time.get(),
                 self.var_date.get(),
